@@ -1,0 +1,92 @@
+Okay this is the basic file and  equation structure that rimworld uses for bullet damage
+
+THE TWO THINGS THAT WE NEED TO FIND ARE
+how is shield damage done
+and
+is the projectile damage randomized at any other point than armor apply, specifically is the projectile given a random damage after firing
+
+
+checkforFreeinterceptbetween
+{
+in
+check if intercepts shield
+call checkIntercept
+{
+in
+if within shield range:
+if emp:
+currenthitpoints (shield hitpoints) = 0
+else:
+currenthitpoints (shield hitpoints) -= projectile.damageamount
+}
+if it did not hit shield:
+if it is on the map:
+call checkforfreeintercept
+{
+in
+if bullet is in path of pawn, this is not an accuracy thing it is a directional thing, again not pawns accuracy just checking if it intersects with said pawn
+call impact
+{
+in
+if hitthing != null than
+dinfo (damageinfo) = (damageinfo) created by the projectile information
+call takedamage with hitthing and send it dinfo \\hitthing.TakeDamage(dinfo)
+{
+in
+if thing doesnt exist that this is attached too, break
+else
+if thing(pawn) has damagemultipliers damage amount = damage amount * damage multipliers
+pass damageamount to call aply
+call apply
+{
+in 
+check if thing is pawn, if pawn:
+call applytopawn
+{
+in
+check if damage can be applied to multiple parts, like a grenade
+if so
+call applydamagetopart for multiple parts
+else
+call applydamagetopart for single part
+{
+in
+num = damageamount
+check to see if body part is real, if so break
+call getpostarmordamage(num)return totaldamage
+{
+in
+amount = num
+for pawn apparel
+void call applyarmor(amount, info)ref amount
+{//this function applies the armor
+//this basically checks a random value against the armorrating and penetration, if the randvalue is greater than armor penetration it goes through
+in
+armorLeft = armorating - armorpenatration min 0
+randvalue
+if (randvalue < armorleft / 2) than amount = 0
+else if (randvalue < armorleft) than amount = randRange(0, amount / 2) 
+}
+void call applyamor(amount, info)ref amount //this one is done for pawn, so it checks the pawns skin, so the bio update can apply its skin modifiers
+return amount
+}
+call finalizedaddinjury(fake totaldamageversion)
+{
+in
+check to see if the part is alread dead, if so break
+create hediff needed for real version
+call finalizedaddinjury(real version)
+{
+in
+num3 created and assigned to be a max value of the bodypart that is hit health, with it also checking to see if instant destruction is allowed, and if it is not allowed the maxinum value for num3 is set to parthealth - 1
+assign totalDamageDealt num3
+totalDamageDealt applies the damage trhoguh teh AddHediff func
+}
+}
+}
+}
+}
+}
+}
+}
+}
