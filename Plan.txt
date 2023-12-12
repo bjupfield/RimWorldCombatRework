@@ -1,0 +1,12 @@
+3 things need to do:
+Change XML Files: 
+	Need to write something that on mass changes the weapon xml files to have zero shield damage, a new modifier
+	Need to write something that on mass changes the weapon xml files to have zero armor damage, a new modifier
+		Assign weapons the shield damage and armor damage they need
+	Remove emp damage type from all projectiles that are not mortars 
+Modify Rimworld Source:
+	Modify shield damage for non-emp damage types to check for shield damage instead of just normal damage and apply that
+	modify armor damage to be applied instead of .25 percent of normal damage
+Modify Armor:
+	I dont really know what to do with marine armor, probably give it a special tag in the xml file that we pull to see if it has shield or not
+	

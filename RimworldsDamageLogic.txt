@@ -1,11 +1,18 @@
 Okay this is the basic file and  equation structure that rimworld uses for bullet damage
 
-THE TWO THINGS THAT WE NEED TO FIND ARE
-how is shield damage done
-and
-is the projectile damage randomized at any other point than armor apply, specifically is the projectile given a random damage after firing
 
+OKAY I LOOKED AT IT AND THERE IS NO RANDOMIZING OF DAMAGE OTHER THAN WITH ARMOR:
+I could not find anything in the source code that looked like it randomized the original projectile,
+and when testing damage, naked people take the same damage from weapons every single time, so the only
+randomized damage is in the armor section in applyarmor(), which is kinda crazy that I didnt notice that with how many hours I have in the game,
+also body part a bullet hits is randomized too, its randomized in impact somewhere but I didnt right it down because I thought it wasnt important
 
+the bullet is a projectile created by the trycastshot func, in verb_laynchProjectile
+bullet is updates itself every tick, and this is where impact and all damage and stuff is applied, although on creation the bullet obviously
+is assigned information from the gun that shoots the bullet
+below is how the tick operates, focusing on the impact, with shield and with pawns.
+
+tick{
 checkforFreeinterceptbetween
 {
 in
@@ -81,6 +88,7 @@ in
 num3 created and assigned to be a max value of the bodypart that is hit health, with it also checking to see if instant destruction is allowed, and if it is not allowed the maxinum value for num3 is set to parthealth - 1
 assign totalDamageDealt num3
 totalDamageDealt applies the damage trhoguh teh AddHediff func
+}
 }
 }
 }
