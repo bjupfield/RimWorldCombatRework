@@ -2,9 +2,9 @@
 <Patch>
 
 	<Operation Class="PatchOperationReplace">
-		<xpath>Defs/ThingDefs_Misc/Weapons/RangedIndustrial[defName="Bullet_Revolver"]/projectile/damageDef</xpath>
+		<xpath>Defs/ThingDef[defName="Bullet_Revolver"]/projectile/damageDef</xpath>
 		<value>
-			<damageDef>EMP</damageDef>
+			<damageDef>_ShieldDamage</damageDef>
 		</value>
 	</Operation>
 	

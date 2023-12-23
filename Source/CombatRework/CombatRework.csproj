@@ -50,8 +50,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="CombatRework.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShieldDamageDef.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

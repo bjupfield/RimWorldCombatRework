@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RimWorld;
+using Verse;
 
 namespace CombatRework
 {
-    public class Class1
+    public static class ShieldDamageDef
     {
+        public static DamageDef ShieldDamage;
     }
 }

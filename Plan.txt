@@ -10,3 +10,13 @@ Modify Rimworld Source:
 Modify Armor:
 	I dont really know what to do with marine armor, probably give it a special tag in the xml file that we pull to see if it has shield or not
 	
+
+
+Structure With Mind for the Future:
+
+
+okay the best possible solution i could come up with is that we would use a xml class to extend the damage def to include armor and shield damage,
+this will to not be a class that inherits from the damagedef, but just a class that contains fields for the two parameters of armor damage and shield damage
+we will connect these classes through some sort of id, which will probably be just being identical to the damage defs name
+
+Plan figure out how to access a def inside of the code, such that we can find our extension def mentioned above
