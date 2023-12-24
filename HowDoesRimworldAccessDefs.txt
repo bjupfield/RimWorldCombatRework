@@ -26,3 +26,6 @@ which use DefDatabase<ThingDef>.AllDefsListForReading,
 to read from the defs
 
 so basically jsut search up the thingstuffpair.allwith in the ilspy and go from there
+
+
+reset is called in playdataloader.doplayload
