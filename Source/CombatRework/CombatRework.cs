@@ -32,22 +32,6 @@ public static class Dialog_ArmorUtility_ApplyArmor_Patch
     static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
     {
         var lineList = new List<CodeInstruction>(lines);
-        for (int i = 0; i < lineList.Count(); i++)
-        {
-            if (lineList[i].opcode == OpCodes.Ldarg_S) Verse.Log.Warning(lineList[i].ToString());
-        }
-        //int finder = 0;
-        //int foundOperand = 0;
-        //while(finder < lineList.Count)
-        //{
-        //    finder++;
-        //    foundOperand++;
-        //    Verse.Log.Warning((lineList[foundOperand].operand != null ? lineList[foundOperand].operand.ToString() : "NOT APPLICABLE"));
-        //    if ((lineList[foundOperand].operand != null ? lineList[foundOperand].operand.ToString() : "NOT APPLICABLE") == "damageDef")
-        //    {
-        //        finder = lineList.Count;
-        //    }
-        //}
 
         List<CodeInstruction> myInstructs = new List<CodeInstruction>();
 
@@ -63,18 +47,45 @@ public static class Dialog_ArmorUtility_ApplyArmor_Patch
         //calls Verse.Log.Warning(DamaageDef.defName);
         myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
 
-        for(int i = 0; i < myInstructs.Count; i++)
-        {
-            Verse.Log.Warning(myInstructs[i].ToString());
-        }
+        //for(int i = 0; i < myInstructs.Count; i++)
+        //{
+        //    Verse.Log.Warning(myInstructs[i].ToString());
+        //}
 
 
         lineList.InsertRange(0, myInstructs);
 
-        //for (int i = 0; i < lineList.Count; i++)
-        //{
-        //    Verse.Log.Warning(lineList[i].ToString());
-        //}
+        return lineList;
+    }
+}
+[HarmonyPatch(typeof(Verse.PlayDataLoader))]
+[HarmonyPatch("DoPlayLoad")]
+public static class DataLoader_Patch
+{
+    [HarmonyTranspiler]
+    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
+    {
+        List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
+        Verse.Log.Warning("HEY ITS ME JERRY LINE COUNT IS: " +lineList.Count.ToString());
+        int adjustPoint = 0;
+        bool found = false;
+        while (!found && adjustPoint < lineList.Count) 
+        {
+            adjustPoint += 1;
+            if (lineList[adjustPoint].operand != null)
+            {
+                Verse.Log.Warning(adjustPoint.ToString() + " |||| " + lineList[adjustPoint].operand.ToString());
+                if (lineList[adjustPoint].operand.ToString() == "Other def binding, resetting and global operations (post-resolve).")
+                {
+                    Verse.Log.Warning(lineList[adjustPoint].operand.ToString());
+                    found = true;
+                }
+            }
+        }
+        adjustPoint += 3;
+        
+        //okay this is where we need to add our shielddamage onload function
+
         return lineList;
     }
 }
