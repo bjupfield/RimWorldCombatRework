@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
+using CombatRework;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -43,9 +44,10 @@ public static class Dialog_ArmorUtility_ApplyArmor_Patch
         Type thingDefType = typeof(DamageDef);
         //ldfld class verse.thingdef vese.thing::defName
         myInstructs.Add(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(thingDefType, "defName")));
-        Type[] myParams = { typeof(string) };
-        //calls Verse.Log.Warning(DamaageDef.defName);
-        myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
+        //calls CombatRework.DamageDefAdjustManager.pullDamageDef()
+        myInstructs.Add(CodeInstruction.Call(typeof(CombatRework.DamageDefAdjustManager), "pullDamageDef"));
+
+        myInstructs.Add(new CodeInstruction(OpCodes.Pop, null));// this pop is to check if its working we need to add some real logic in but is just test
 
         //for(int i = 0; i < myInstructs.Count; i++)
         //{
@@ -66,7 +68,6 @@ public static class DataLoader_Patch
     static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
     {
         List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
-        Verse.Log.Warning("HEY ITS ME JERRY LINE COUNT IS: " +lineList.Count.ToString());
         int adjustPoint = 0;
         bool found = false;
         while (!found && adjustPoint < lineList.Count) 
@@ -74,16 +75,22 @@ public static class DataLoader_Patch
             adjustPoint += 1;
             if (lineList[adjustPoint].operand != null)
             {
-                Verse.Log.Warning(adjustPoint.ToString() + " |||| " + lineList[adjustPoint].operand.ToString());
                 if (lineList[adjustPoint].operand.ToString() == "Other def binding, resetting and global operations (post-resolve).")
                 {
-                    Verse.Log.Warning(lineList[adjustPoint].operand.ToString());
                     found = true;
                 }
             }
         }
         adjustPoint += 3;
         
+        List<CodeInstruction> myInstructs = new List<CodeInstruction>();
+        
+        
+        myInstructs.Add(CodeInstruction.Call(typeof(CombatRework.DamageDefAdjustManager), "onLoad"));
+
+        myInstructs.Add(new CodeInstruction(OpCodes.Pop, null));
+
+        lineList.InsertRange(adjustPoint, myInstructs);
         //okay this is where we need to add our shielddamage onload function
 
         return lineList;
