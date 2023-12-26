@@ -54,7 +54,7 @@ public static class Dialog_ArmorUtility_ApplyArmor_Patch
         //    Verse.Log.Warning(myInstructs[i].ToString());
         //}
 
-
+        
         lineList.InsertRange(0, myInstructs);
 
         return lineList;
