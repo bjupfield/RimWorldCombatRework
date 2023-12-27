@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Verse;
 
-namespace CombatRework
+namespace Verse
 {
     public class DamageDefAdjust : Def
     {

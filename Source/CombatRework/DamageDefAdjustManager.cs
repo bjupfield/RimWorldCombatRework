@@ -11,37 +11,51 @@ namespace CombatRework
 {
     public static class DamageDefAdjustManager
     {
-        private static Dictionary<String, DamageDefAdjust> allDamages;
+        private static Dictionary<String, DamageDefAdjust> allDamages = new Dictionary<string, DamageDefAdjust>();
 
 
         public static int onLoad()
         {
             allDamages = new Dictionary<String, DamageDefAdjust>();
-            List<DamageDefAdjust> myDamages = DefDatabase<DamageDefAdjust>.AllDefsListForReading;
-            List<ThingDef> myBullets = DefDatabase<ThingDef>.AllDefsListForReading;
+            List<DamageDefAdjust> myDamages = DefDatabase<DamageDefAdjust>.AllDefsListForReading.ListFullCopy();
+            List<ThingDef> myGuns = DefDatabase<ThingDef>.AllDefsListForReading.ListFullCopy();
             Verse.Log.Warning("WE ARE IN THE STATIC MANAGER CLASS");
-            myBullets.RemoveAll(thing =>
+            myGuns.RemoveAll(thing =>
             {
-                return thing.label != "arrow" && thing.label != "bullet";
+                return thing.weaponTags == null;
             });
-            foreach(DamageDefAdjust damage in myDamages)
+            //foreach(ThingDef gun in myGuns)
+            //{
+            //    Verse.Log.Warning(gun.defName);
+            //}
+            Verse.Log.Warning("The amount of defs are: " + myDamages.Count.ToString());
+            foreach(DamageDefAdjust damageAdjust in myDamages)
             {
-                if(myBullets.Find(realDamage => realDamage.defName == damage.defName) != null)
-                {
-                    allDamages.Add(damage.defName, damage);
-                }
+                Verse.Log.Warning(damageAdjust.defName.ToString() + "'s Death Message: " + damageAdjust.shieldDamage.ToString());
             }
+            //foreach (DamageDefAdjust damage in myDamages)
+            //{
+            //    ThingDef myGun = myGuns.Find(gun => gun.Verbs[0].defaultProjectile.defName == damage.defName);
+            //    if (myGun != null)
+            //    {
+            //        allDamages.Add(myGun.Verbs[0].defaultProjectile.defName, damage);
+            //    }
+            //    allDamages.Add(damage.defName, damage);
+            //}
+            
             return 0;
         }
         public static DamageDefAdjust pullDamageDef(string DefName)
         {
             Verse.Log.Warning("Weapon Name: " + DefName);
+            Verse.Log.Warning("Weapons Loaded: " + allDamages.Count);
             Verse.Log.Warning("THIS IS THIS WEAPONS SHIELD DAMAGE: " + allDamages[DefName].shieldDamage.ToString());
             Verse.Log.Warning("THIS IS THIS WEAPONS ARMOR DAMAGE: " + allDamages[DefName].armorDamage.ToString());
             return allDamages[DefName];
         }
-        public static float GetPostArmorDamage(Pawn pawn, float amount, float armorPenetration, BodyPartRecord part, ref DamageDef damageDef, string projectileName, out bool deflectedByMetalArmor, out bool diminishedByMetalArmor)
+        public static float GetPostArmorDamage(Pawn pawn, float amount, float armorPenetration, BodyPartRecord part, ref DamageDef damageDef, out bool deflectedByMetalArmor, out bool diminishedByMetalArmor, string projectileName)//alright just copying this because i need more info in the applyarmor function and this is the best way
         {
+            Verse.Log.Warning("HEY THIS IS ACTIVATING");
             deflectedByMetalArmor = false;
             diminishedByMetalArmor = false;
             if (damageDef.armorCategory == null)
@@ -58,7 +72,7 @@ namespace CombatRework
                     if (apparel.def.apparel.CoversBodyPart(part))
                     {
                         float num2 = amount;
-                        ApplyArmor(ref amount, armorPenetration, apparel.GetStatValue(armorRatingStat), apparel, ref damageDef, pawn, projectileName, out var metalArmor);
+                        ApplyArmor(ref amount, armorPenetration, apparel.GetStatValue(armorRatingStat), apparel, ref damageDef, pawn, out var metalArmor, projectileName);
                         if (amount < 0.001f)
                         {
                             deflectedByMetalArmor = metalArmor;
@@ -72,7 +86,7 @@ namespace CombatRework
                 }
             }
             float num3 = amount;
-            ApplyArmor(ref amount, armorPenetration, pawn.GetStatValue(armorRatingStat), null, ref damageDef, pawn, projectileName, out var metalArmor2);
+            ApplyArmor(ref amount, armorPenetration, pawn.GetStatValue(armorRatingStat), null, ref damageDef, pawn, out var metalArmor2, projectileName);
             if (amount < 0.001f)
             {
                 deflectedByMetalArmor = metalArmor2;
@@ -84,7 +98,7 @@ namespace CombatRework
             }
             return amount;
         }
-        private static void ApplyArmor(ref float damAmount, float armorPenetration, float armorRating, Thing armorThing, ref DamageDef damageDef, Pawn pawn, string projectileName, out bool metalArmor)
+        private static void ApplyArmor(ref float damAmount, float armorPenetration, float armorRating, Thing armorThing, ref DamageDef damageDef, Pawn pawn, out bool metalArmor, string projectileName)
         {
             pullDamageDef(projectileName);
             if (armorThing != null)
