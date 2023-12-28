@@ -76,39 +76,111 @@ public static class DamageWroker_AddInjury__ApplyDamage_Patch
         return lineList;
     }
 }
-//[HarmonyPatch(typeof(Verse.PlayDataLoader))]
-//[HarmonyPatch("DoPlayLoad")]
-//public static class DataLoader_Patch
+[HarmonyPatch(typeof(RimWorld.CompProjectileInterceptor))]
+[HarmonyPatch("CheckIntercept")]
+public static class SheildIntercept_Patch
+{
+    [HarmonyTranspiler]
+    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
+    {
+        List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
+        int adjustPoint = 0;
+        int found = 0;
+        while (found < 2 && adjustPoint < lineList.Count)
+        {
+            adjustPoint += 1;
+            
+            if (lineList[adjustPoint].opcode == OpCodes.Ble_S)
+            {
+                found += 1;
+            }
+
+            if (lineList[adjustPoint].ToString().Contains("TriggerEffecter")) found = 200;
+        }
+        //adjustPoint += 1;
+
+        List<CodeInstruction> myInstructs = new List<CodeInstruction>();
+
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldarg, 1));
+        myInstructs.Add(CodeInstruction.Call(typeof(Verse.Projectile), "get_DamageAmount"));
+        myInstructs.Add(CodeInstruction.Call(typeof(CombatRework.DamageDefAdjustManager), "printString"));
+        //myInstructs.Add(new CodeInstruction(OpCodes.Pop, null));
+
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldstr, "FUCK YOU I SHOULD BE IN HERE"));
+        Type[] myParams = { typeof(string) };
+        myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
+
+        lineList.InsertRange(0, myInstructs);
+        //okay this is where we need to add our shielddamage onload function
+
+        return lineList;
+    }
+}
+//[HarmonyPatch(typeof(RimWorld.Bullet))]
+//[HarmonyPatch("Impact")]
+//public static class Bullet_Impact_Patch
 //{
 //    [HarmonyTranspiler]
 //    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
 //    {
+//        Verse.Log.Warning("This iniatilized");
 //        List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
-//        int adjustPoint = 0;
-//        bool found = false;
-//        while (!found && adjustPoint < lineList.Count) 
-//        {
-//            adjustPoint += 1;
-//            if (lineList[adjustPoint].operand != null)
-//            {
-//                if (lineList[adjustPoint].operand.ToString() == "Other def binding, resetting and global operations (post-resolve).")
-//                {
-//                    found = true;
-//                }
-//            }
-//        }
-//        adjustPoint += 3;
-        
+
 //        List<CodeInstruction> myInstructs = new List<CodeInstruction>();
-        
-        
-//        myInstructs.Add(CodeInstruction.Call(typeof(CombatRework.DamageDefAdjustManager), "onLoad"));
 
-//        myInstructs.Add(new CodeInstruction(OpCodes.Pop, null));
+//        myInstructs.Add(new CodeInstruction(OpCodes.Ldstr, "FUCK YOU I SHOULD BE IN HERE"));
+//        Type[] myParams = { typeof(string) };
+//        myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
 
-//        lineList.InsertRange(adjustPoint, myInstructs);
-//        //okay this is where we need to add our shielddamage onload function
-
+//        lineList.InsertRange(0, myInstructs);
 //        return lineList;
 //    }
 //}
+//[HarmonyPatch(typeof(Verse.Thing))]
+//[HarmonyPatch("TakeDamage")]
+//public static class Thing_TakeDamage_Patch
+//{
+//    [HarmonyTranspiler]
+//    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
+//    {
+//        Verse.Log.Warning("This iniatilized");
+//        List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
+
+//        List<CodeInstruction> myInstructs = new List<CodeInstruction>();
+
+//        //myInstructs.Add(new CodeInstruction(OpCodes.Ldstr, "FUCK YOU I SHOULD BE IN HERE IN TAKE DAMAGE"));
+//        //Type[] myParams = { typeof(string) };
+//        //myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
+
+//        lineList.InsertRange(0, myInstructs);
+//        return lineList;
+//    }
+//}
+[HarmonyPatch(typeof(Verse.DamageWorker))]
+[HarmonyPatch("Apply")]
+public static class DamageWorker_Apply_Patch
+{
+    [HarmonyTranspiler]
+    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
+    {
+        Verse.Log.Warning("This iniatilized Damage Worker Apply");
+        List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
+
+        List<CodeInstruction> myInstructs = new List<CodeInstruction>();
+
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldstr, "FUCK YOU I SHOULD BE IN HERE in damageworkerapply"));
+        Type[] myParams = { typeof(string) };
+        myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
+
+
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldarga_S, 1));
+        myInstructs.Add(CodeInstruction.Call(typeof(Verse.Thing), "get_DescriptionFlavor"));
+        // myInstructs.Add(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(ThingDef), "defName")));
+        //myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
+        myInstructs.Add(new CodeInstruction(OpCodes.Pop, null));
+
+        lineList.InsertRange(0, myInstructs);
+        return lineList;
+    }
+}
+//the above function doesnt seem to be taking damage for the shield, but the ones above it do seem to be having the bullets damage filterered through it

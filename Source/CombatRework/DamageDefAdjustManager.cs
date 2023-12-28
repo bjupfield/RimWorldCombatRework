@@ -24,25 +24,26 @@ namespace CombatRework
             {
                 return thing.weaponTags == null;
             });
-            //foreach(ThingDef gun in myGuns)
-            //{
-            //    Verse.Log.Warning(gun.defName);
-            //}
-            Verse.Log.Warning("The amount of defs are: " + myDamages.Count.ToString());
-            foreach(DamageDefAdjust damageAdjust in myDamages)
+            myGuns.RemoveAll(thing =>
             {
-                Verse.Log.Warning(damageAdjust.defName.ToString() + "'s Death Message: " + damageAdjust.shieldDamage.ToString());
+                if (thing.Verbs == null) return true;
+                if (thing.Verbs.Count == 0) return true;
+                return thing.Verbs[0].defaultProjectile == null;
+            });
+            foreach (DamageDefAdjust damage in myDamages)
+            {
+                ThingDef myGun = myGuns.Find(gun =>
+                {
+                    return gun.Verbs[0].defaultProjectile.defName == damage.defName;
+                });
+                if (myGun != null)
+                {
+                    allDamages.Add(myGun.defName, damage);
+                }
             }
-            //foreach (DamageDefAdjust damage in myDamages)
-            //{
-            //    ThingDef myGun = myGuns.Find(gun => gun.Verbs[0].defaultProjectile.defName == damage.defName);
-            //    if (myGun != null)
-            //    {
-            //        allDamages.Add(myGun.Verbs[0].defaultProjectile.defName, damage);
-            //    }
-            //    allDamages.Add(damage.defName, damage);
-            //}
-            
+
+            Verse.Log.Warning("Final Count" + allDamages.Count.ToString());
+
             return 0;
         }
         public static DamageDefAdjust pullDamageDef(string DefName)
@@ -130,6 +131,10 @@ namespace CombatRework
                     damageDef = DamageDefOf.Blunt;
                 }
             }
+        }
+        private static void printString(int b)
+        {
+            Verse.Log.Warning("This is the damage it is doing to the shield" + b.ToString());
         }
     }
 
