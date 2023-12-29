@@ -121,3 +121,120 @@ public static class CompShield_PostPreApplyDamage_Patch
         return lineList;
     }
 }
+[HarmonyPatch(typeof(Verse.DebugThingPlaceHelper))]
+[HarmonyPatch("DebugSpawn")]
+public static class DebugThingPlaceHelper_DebugSpawn_Patch
+{
+    [HarmonyTranspiler]
+    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
+    {
+        List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
+
+        int found = 0;
+        int adjustPoint = 0;
+        while (found < 2 && adjustPoint < lineList.Count)
+        {
+            adjustPoint++;
+            if (lineList[adjustPoint].opcode == OpCodes.Brfalse_S) found += 1;
+        }
+        ++adjustPoint;
+
+        List<CodeInstruction> myInstructs = new List<CodeInstruction>();
+        //verse.log.warning("This means...");
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldstr, "This Means that the thing does not generate with a comp quality automatically"));
+        //Type[] myParams = { typeof(string) };
+        //myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
+        
+        lineList.InsertRange(adjustPoint, myInstructs);
+
+        return lineList;
+    }
+}
+[HarmonyPatch(typeof(Verse.PawnGenerator))]
+[HarmonyPatch("PostProcessGeneratedGear")]
+public static class PawnGenerator_PostProcessGeneratedGear_Patch
+{
+    [HarmonyTranspiler]
+    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
+    {
+        List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
+
+        bool found = false;
+        int adjustPoint = 0;
+        while (!found && adjustPoint < lineList.Count)
+        {
+            adjustPoint++;
+            if (lineList[adjustPoint].opcode == OpCodes.Brfalse_S) found = true;
+        }
+        ++adjustPoint;
+
+        List<CodeInstruction> myInstructs = new List<CodeInstruction>();
+        //verse.log.warning("This means...");
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldstr, "This Means that the thing does not generate with a comp quality automatically || In PostProcessGeneratedGear"));
+        //Type[] myParams = { typeof(string) };
+        //myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
+
+
+        //print(thing.thingdef.defname)
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldarg_0, null));
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(Thing), "def")));
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ThingDef), "defName")));
+        //myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
+
+        //print(pawn.name.fullstring)
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldarg_1, null));
+        //myInstructs.Add(CodeInstruction.Call(typeof(Verse.Pawn), "get_Name"));
+        //myInstructs.Add(CodeInstruction.Call(typeof(Verse.Name), "get_ToStringFull"));
+        //myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
+        lineList.InsertRange(adjustPoint, myInstructs);
+
+        return lineList;
+    }
+}
+[HarmonyPatch(typeof(Verse.ThingWithComps))]
+[HarmonyPatch("PostMake")]
+public static class ThingWithComps_PostMake_Patch
+{
+    [HarmonyTranspiler]
+    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
+    {
+        List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
+
+
+        List<CodeInstruction> myInstructs = new List<CodeInstruction>();
+        //printmyinfo(thingwithcomps);
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldarg_0, null));
+        //myInstructs.Add(CodeInstruction.Call(typeof(CombatRework.DamageDefAdjustManager), "printMyInfo"));
+
+        lineList.InsertRange(0, myInstructs);
+
+        return lineList;
+    }
+}
+[HarmonyPatch(typeof(Verse.ThingWithComps))]
+[HarmonyPatch("InitializeComps")]
+public static class ThingWithComps_InitializeComps_Patch
+{
+    [HarmonyTranspiler]
+    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
+    {
+        List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
+
+        bool found = false;
+        int adjustPoint = 0;
+        //while (!found && adjustPoint < lineList.Count)
+        //{
+        //    if (lineList[adjustPoint].opcode == OpCodes.Stfld) found = false;
+        //}
+        adjustPoint += 1;
+
+        List<CodeInstruction> myInstructs = new List<CodeInstruction>();
+        //printmyinfo(thingwithcomps);
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldarg_0, null));
+        myInstructs.Add(CodeInstruction.Call(typeof(CombatRework.DamageDefAdjustManager), "printMyInfo"));
+
+        lineList.InsertRange(lineList.Count - 2, myInstructs);
+
+        return lineList;
+    }
+}

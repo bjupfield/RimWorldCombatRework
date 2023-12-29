@@ -153,6 +153,14 @@ namespace CombatRework
         {
             Verse.Log.Warning("It is in TakeDamage and it is: " + def.defName);
         }
+        private static void printMyInfo(ThingWithComps thing)
+        {
+            if(thing.def.weaponTags != null && thing.def.weaponTags.Count > 0)
+            {
+                Verse.Log.Warning(thing.def.defName + "Spawned in");
+                Verse.Log.Warning(thing.AllComps.Count.ToString() + "Comp Count");
+            }
+        }
     }
 
 }

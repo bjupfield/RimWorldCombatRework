@@ -112,3 +112,23 @@ Im pretty the weapondamagemultiplier is the quality
 okay the rangedweapondamagemultiplier stat is the quality, so what we need to do is some how make a thingcomp
 that we can attach to our weapon that than is modified by this rangedweapondamagemultiplier that we pass through our
 functions
+
+
+okay compquality for weapons assignment: we will assign the shielddamage comps here too
+PostProcesssGeneratedGear
+DebugSpawn
+maybe Makething
+
+
+
+
+okay I found where comps are assigned, you can look in C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Data\Royalty\Defs\ThingDefs_Misc\Weapons\MeleeUltratech.xml
+to see that comps are assigned to thingdefs, which means that each weapon needs to be assigned this comp, but as shown in the file it can be done in the abstract
+
+okay with this information here is the plan, we need to create our comp, which I think our CompDamageDef handles,
+than we need to do a patch onto the base weapons that adds our comp to the comps list
+in our comp we need an override for intiialize that will take our def.comps[i] somehow and grant it the proper values
+than we need to pass this to our compshield.postpreapplydamage and our applyarmor functions,
+and thats all
+parent is part of thingcomp, and it is initialized befoore the initiialized function on thingcomp, so we can use that to identify what weapon
+we are in, and than we can attach our thingcomp to the correct weapon, wonderful
