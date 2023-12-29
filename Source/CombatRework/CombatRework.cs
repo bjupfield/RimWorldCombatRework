@@ -35,11 +35,6 @@ public static class DamageWroker_AddInjury__ApplyDamage_Patch
     {
         var lineList = new List<CodeInstruction>(lines);
 
-        //for (int i = 0; i < lineList.Count; i++)
-        //{
-        //    Verse.Log.Warning(lineList[i].ToString());
-        //}
-
         bool found = false;
         int replacePoint = 0;
         while(!found && replacePoint < lineList.Count)
@@ -55,23 +50,12 @@ public static class DamageWroker_AddInjury__ApplyDamage_Patch
         myInstructs.Add(new CodeInstruction(OpCodes.Ldarga_S, 1));
         myInstructs.Add(CodeInstruction.Call(typeof(DamageInfo), "get_Weapon"));
         myInstructs.Add(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ThingDef), "defName")));
-
-        //DamageDefAdjustManager.GetPostArmorDamage(pawn, num, dinfo.ArmorPenetrationInt, dinfo.HitPart, ref damageDef, out deflectedByMetalArmor, out var diminishedByMetalArmor, string dinfo.Weapon.defname);
-
+        
+        //call DamagDefAdjustManager.GetPostArmorDamage(dinfo.weapon.defname)
         myInstructs.Add(CodeInstruction.Call(typeof(DamageDefAdjustManager), "GetPostArmorDamage"));
-
-        //for(int i = 0; i < myInstructs.Count; i++)
-        //{
-        //    Verse.Log.Warning(myInstructs[i].ToString());
-        //}
 
         lineList.RemoveAt(replacePoint);
         lineList.InsertRange(replacePoint, myInstructs);
-
-        //for (int i = 0; i < lineList.Count; i++)
-        //{
-        //    Verse.Log.Warning(lineList[i].ToString());
-        //}
 
         return lineList;
     }
@@ -83,6 +67,8 @@ public static class SheildIntercept_Patch
     [HarmonyTranspiler]
     static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
     {
+        //this is the patch for damage for shields that are not on a character, like mechshields and broadshields
+
         List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
         int adjustPoint = 0;
         int found = 0;
@@ -101,86 +87,37 @@ public static class SheildIntercept_Patch
 
         List<CodeInstruction> myInstructs = new List<CodeInstruction>();
 
-        myInstructs.Add(new CodeInstruction(OpCodes.Ldarg, 1));
-        myInstructs.Add(CodeInstruction.Call(typeof(Verse.Projectile), "get_DamageAmount"));
-        myInstructs.Add(CodeInstruction.Call(typeof(CombatRework.DamageDefAdjustManager), "printString"));
-        //myInstructs.Add(new CodeInstruction(OpCodes.Pop, null));
-
-        myInstructs.Add(new CodeInstruction(OpCodes.Ldstr, "FUCK YOU I SHOULD BE IN HERE"));
-        Type[] myParams = { typeof(string) };
-        myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
-
         lineList.InsertRange(0, myInstructs);
         //okay this is where we need to add our shielddamage onload function
 
         return lineList;
     }
 }
-//[HarmonyPatch(typeof(RimWorld.Bullet))]
-//[HarmonyPatch("Impact")]
-//public static class Bullet_Impact_Patch
-//{
-//    [HarmonyTranspiler]
-//    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
-//    {
-//        Verse.Log.Warning("This iniatilized");
-//        List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
 
-//        List<CodeInstruction> myInstructs = new List<CodeInstruction>();
-
-//        myInstructs.Add(new CodeInstruction(OpCodes.Ldstr, "FUCK YOU I SHOULD BE IN HERE"));
-//        Type[] myParams = { typeof(string) };
-//        myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
-
-//        lineList.InsertRange(0, myInstructs);
-//        return lineList;
-//    }
-//}
-//[HarmonyPatch(typeof(Verse.Thing))]
-//[HarmonyPatch("TakeDamage")]
-//public static class Thing_TakeDamage_Patch
-//{
-//    [HarmonyTranspiler]
-//    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
-//    {
-//        Verse.Log.Warning("This iniatilized");
-//        List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
-
-//        List<CodeInstruction> myInstructs = new List<CodeInstruction>();
-
-//        //myInstructs.Add(new CodeInstruction(OpCodes.Ldstr, "FUCK YOU I SHOULD BE IN HERE IN TAKE DAMAGE"));
-//        //Type[] myParams = { typeof(string) };
-//        //myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
-
-//        lineList.InsertRange(0, myInstructs);
-//        return lineList;
-//    }
-//}
-[HarmonyPatch(typeof(Verse.DamageWorker))]
-[HarmonyPatch("Apply")]
-public static class DamageWorker_Apply_Patch
+[HarmonyPatch(typeof(RimWorld.CompShield))]
+[HarmonyPatch("PostPreApplyDamage")]
+public static class CompShield_PostPreApplyDamage_Patch
 {
     [HarmonyTranspiler]
     static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
     {
-        Verse.Log.Warning("This iniatilized Damage Worker Apply");
+        //this is the patch for the shieldpack damage
         List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
 
         List<CodeInstruction> myInstructs = new List<CodeInstruction>();
 
-        myInstructs.Add(new CodeInstruction(OpCodes.Ldstr, "FUCK YOU I SHOULD BE IN HERE in damageworkerapply"));
-        Type[] myParams = { typeof(string) };
-        myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
 
-
+        //damaginfo.weapon.defname
         myInstructs.Add(new CodeInstruction(OpCodes.Ldarga_S, 1));
-        myInstructs.Add(CodeInstruction.Call(typeof(Verse.Thing), "get_DescriptionFlavor"));
-        // myInstructs.Add(new CodeInstruction(OpCodes.Ldsfld, AccessTools.Field(typeof(ThingDef), "defName")));
-        //myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
-        myInstructs.Add(new CodeInstruction(OpCodes.Pop, null));
+        myInstructs.Add(CodeInstruction.Call(typeof(DamageInfo), "get_Weapon"));
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ThingDef), "defName")));
+        //DamageDefAdjustManager.pulldamagedef(damageinfo.weapon)
+        myInstructs.Add(CodeInstruction.Call(typeof(DamageDefAdjustManager), "partTwo"));
+        //pop
+        //myInstructs.Add(new CodeInstruction(OpCodes.Pop, null));
 
         lineList.InsertRange(0, myInstructs);
+
         return lineList;
     }
 }
-//the above function doesnt seem to be taking damage for the shield, but the ones above it do seem to be having the bullets damage filterered through it

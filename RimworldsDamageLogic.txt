@@ -98,3 +98,17 @@ totalDamageDealt applies the damage trhoguh teh AddHediff func
 }
 }
 }
+
+
+launch assigns the quality modifier, but doesnt translate it to damage?
+
+
+okay so shield damage does reach the impact function
+okay I have found it, shieldbelt damage is applied in the function CompShield.PostPreApplyDamage(), great name
+and outside of person shields that appears on the map, not the pawn are handled in checkIntercept
+
+Im pretty the weapondamagemultiplier is the quality
+
+okay the rangedweapondamagemultiplier stat is the quality, so what we need to do is some how make a thingcomp
+that we can attach to our weapon that than is modified by this rangedweapondamagemultiplier that we pass through our
+functions

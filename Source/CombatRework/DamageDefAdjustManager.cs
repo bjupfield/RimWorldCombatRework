@@ -54,6 +54,15 @@ namespace CombatRework
             Verse.Log.Warning("THIS IS THIS WEAPONS ARMOR DAMAGE: " + allDamages[DefName].armorDamage.ToString());
             return allDamages[DefName];
         }
+
+        public static void partTwo(string DefName)
+        {
+            Verse.Log.Warning("Weapon Name: " + DefName);
+            Verse.Log.Warning("Weapons Loaded: " + allDamages.Count);
+            Verse.Log.Warning("Shield Damage: " + allDamages[DefName].shieldDamage.ToString());
+            Verse.Log.Warning("Armor Damage: " + allDamages[DefName].armorDamage.ToString());
+        }
+
         public static float GetPostArmorDamage(Pawn pawn, float amount, float armorPenetration, BodyPartRecord part, ref DamageDef damageDef, out bool deflectedByMetalArmor, out bool diminishedByMetalArmor, string projectileName)//alright just copying this because i need more info in the applyarmor function and this is the best way
         {
             Verse.Log.Warning("HEY THIS IS ACTIVATING");
@@ -135,6 +144,14 @@ namespace CombatRework
         private static void printString(int b)
         {
             Verse.Log.Warning("This is the damage it is doing to the shield" + b.ToString());
+        }
+        private static void printBool(bool b)
+        {
+            Verse.Log.Warning("Is this a shield: " + b.ToString());
+        }
+        private static void takeDamagePrint(ThingDef def)
+        {
+            Verse.Log.Warning("It is in TakeDamage and it is: " + def.defName);
         }
     }
 
