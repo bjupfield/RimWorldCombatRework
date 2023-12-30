@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
-	<DamageDefAdjust>
-		<defName>Bullet_Revolver</defName>
+	<Shield_Armor_Damage>
+		<defName>Gun_Revolver</defName>
 		<shieldDamage>200</shieldDamage>
 		<armorDamage>300</armorDamage>
-	</DamageDefAdjust>
+	</Shield_Armor_Damage>
 </Defs>

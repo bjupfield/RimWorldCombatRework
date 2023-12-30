@@ -52,7 +52,7 @@
   <ItemGroup>
     <Compile Include="CombatRework.cs" />
     <Compile Include="CompDamageDef.cs" />
-    <Compile Include="DamageDefAdjust.cs" />
+    <Compile Include="Shield_Armor_Damage_Def.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DamageDefAdjustManager.cs" />
   </ItemGroup>

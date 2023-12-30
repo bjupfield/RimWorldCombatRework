@@ -230,8 +230,8 @@ public static class ThingWithComps_InitializeComps_Patch
 
         List<CodeInstruction> myInstructs = new List<CodeInstruction>();
         //printmyinfo(thingwithcomps);
-        myInstructs.Add(new CodeInstruction(OpCodes.Ldarg_0, null));
-        myInstructs.Add(CodeInstruction.Call(typeof(CombatRework.DamageDefAdjustManager), "printMyInfo"));
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldarg_0, null));
+        //myInstructs.Add(CodeInstruction.Call(typeof(CombatRework.DamageDefAdjustManager), "printMyInfo"));
 
         lineList.InsertRange(lineList.Count - 2, myInstructs);
 

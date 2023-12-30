@@ -7,7 +7,7 @@ using Verse;
 
 namespace Verse
 {
-    public class DamageDefAdjust : Def
+    public class Shield_Armor_Damage : Def
     {
         public int shieldDamage;
         public int armorDamage;

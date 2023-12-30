@@ -11,13 +11,13 @@ namespace CombatRework
 {
     public static class DamageDefAdjustManager
     {
-        private static Dictionary<String, DamageDefAdjust> allDamages = new Dictionary<string, DamageDefAdjust>();
+        private static Dictionary<String, Shield_Armor_Damage> allDamages = new Dictionary<string, Shield_Armor_Damage>();
 
 
         public static int onLoad()
         {
-            allDamages = new Dictionary<String, DamageDefAdjust>();
-            List<DamageDefAdjust> myDamages = DefDatabase<DamageDefAdjust>.AllDefsListForReading.ListFullCopy();
+            allDamages = new Dictionary<String, Shield_Armor_Damage>();
+            List<Shield_Armor_Damage> myDamages = DefDatabase<Shield_Armor_Damage>.AllDefsListForReading.ListFullCopy();
             List<ThingDef> myGuns = DefDatabase<ThingDef>.AllDefsListForReading.ListFullCopy();
             Verse.Log.Warning("WE ARE IN THE STATIC MANAGER CLASS");
             myGuns.RemoveAll(thing =>
@@ -26,15 +26,13 @@ namespace CombatRework
             });
             myGuns.RemoveAll(thing =>
             {
-                if (thing.Verbs == null) return true;
-                if (thing.Verbs.Count == 0) return true;
-                return thing.Verbs[0].defaultProjectile == null;
+                return thing.weaponTags.Count == 0;
             });
-            foreach (DamageDefAdjust damage in myDamages)
+            foreach (Shield_Armor_Damage damage in myDamages)
             {
                 ThingDef myGun = myGuns.Find(gun =>
                 {
-                    return gun.Verbs[0].defaultProjectile.defName == damage.defName;
+                    return gun.defName == damage.defName;
                 });
                 if (myGun != null)
                 {
@@ -46,13 +44,18 @@ namespace CombatRework
 
             return 0;
         }
-        public static DamageDefAdjust pullDamageDef(string DefName)
+        public static Shield_Armor_Damage pullDamageDef(string DefName)
         {
             Verse.Log.Warning("Weapon Name: " + DefName);
             Verse.Log.Warning("Weapons Loaded: " + allDamages.Count);
-            Verse.Log.Warning("THIS IS THIS WEAPONS SHIELD DAMAGE: " + allDamages[DefName].shieldDamage.ToString());
-            Verse.Log.Warning("THIS IS THIS WEAPONS ARMOR DAMAGE: " + allDamages[DefName].armorDamage.ToString());
-            return allDamages[DefName];
+            if (allDamages.ContainsKey(DefName))
+            {
+                Shield_Armor_Damage damage = allDamages[DefName];
+                Verse.Log.Warning("THIS IS THIS WEAPONS SHIELD DAMAGE: " + damage.shieldDamage.ToString());
+                Verse.Log.Warning("THIS IS THIS WEAPONS ARMOR DAMAGE: " + damage.armorDamage.ToString());
+                return damage;
+            }
+            return null;
         }
 
         public static void partTwo(string DefName)

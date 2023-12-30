@@ -13,11 +13,18 @@ namespace RimWorld
         private int shieldDamage = 0;
         private int armorDamage = 0;
 
-        public CompDamageDef(string defName, QualityCategory quality)
+        public int get_shieldDamage()
         {
-            DamageDefAdjust shieldArmorInfo = DamageDefAdjustManager.pullDamageDef(defName);
-            this.shieldDamage = shieldArmorInfo.shieldDamage;
-            this.shieldDamage = shieldArmorInfo.armorDamage;
+            return this.shieldDamage;
+        }
+        public int get_armorDamage() 
+        {
+            return this.armorDamage;
+        }
+        override public void Initialize(CompProperties props)
+        {
+            Verse.Log.Warning("Hey This is occuring Inside my Comp");
+            Shield_Armor_Damage myDamages = DamageDefAdjustManager.pullDamageDef(this.parent.def.defName);
         }
     }
 }
