@@ -233,7 +233,77 @@ public static class ThingWithComps_InitializeComps_Patch
         //myInstructs.Add(new CodeInstruction(OpCodes.Ldarg_0, null));
         //myInstructs.Add(CodeInstruction.Call(typeof(CombatRework.DamageDefAdjustManager), "printMyInfo"));
 
-        lineList.InsertRange(lineList.Count - 2, myInstructs);
+        lineList.InsertRange(lineList.Count - 1, myInstructs);
+
+        return lineList;
+    }
+}
+[HarmonyPatch(typeof(Verse.Thing))]
+[HarmonyPatch("TakeDamage")]
+public static class Thing_TakeDamage_Patch
+{
+    [HarmonyTranspiler]
+    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
+    {
+        List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
+
+        bool found = false;
+        int adjustPoint = 0;
+        //while (!found && adjustPoint < lineList.Count)
+        //{
+        //    if (lineList[adjustPoint].opcode == OpCodes.Stloc_2) found = true;
+        //}
+        //adjustPoint += 1;
+
+        List<CodeInstruction> myInstructs = new List<CodeInstruction>();
+        //if(thing thing is pawn);
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldarg_0, null));
+        //myInstructs.Add(new CodeInstruction(OpCodes.Isinst, typeof(Verse.Pawn)));
+        //myInstructs.Add(new CodeInstruction(OpCodes.Stloc_S, 6));
+
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldloc_S, 6));
+        //myInstructs.Add(new CodeInstruction(OpCodes.Brtrue_S, null));
+        //int jf1 = myInstructs.Count - 1;
+
+        //applytopawn(dinfo, pawn, 
+
+        //verse.log.warning(this.def.defname)
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldarg_0, null));
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(Thing), "def")));
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ThingDef), "defName")));
+        //Type[] myParams = { typeof(string) };
+        //myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
+
+        lineList.InsertRange(0, myInstructs);
+
+        return lineList;
+    }
+}
+[HarmonyPatch(typeof(RimWorld.Bullet))]
+[HarmonyPatch("Impact")]
+public static class Bullet_Impact_Patch
+{
+    [HarmonyTranspiler]
+    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
+    {
+        List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
+
+        bool found = false;
+        int adjustPoint = 0;
+        while (!found && adjustPoint < lineList.Count)
+        {
+            if (lineList[adjustPoint].ToString().Contains("Verse.DamageInfo")) found = true;
+            adjustPoint++;
+        }
+        adjustPoint += 1;
+
+
+        List<CodeInstruction> myInstructs = new List<CodeInstruction>();
+
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldarg_0, null));
+        myInstructs.Add(CodeInstruction.Call(typeof(CombatRework.DamageDefAdjustManager), "printBullet"));
+
+        lineList.InsertRange(adjustPoint, myInstructs);
 
         return lineList;
     }

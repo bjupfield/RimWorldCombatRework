@@ -47,7 +47,7 @@ namespace CombatRework
         public static Shield_Armor_Damage pullDamageDef(string DefName)
         {
             Verse.Log.Warning("Weapon Name: " + DefName);
-            Verse.Log.Warning("Weapons Loaded: " + allDamages.Count);
+            
             if (allDamages.ContainsKey(DefName))
             {
                 Shield_Armor_Damage damage = allDamages[DefName];
@@ -158,11 +158,20 @@ namespace CombatRework
         }
         private static void printMyInfo(ThingWithComps thing)
         {
-            if(thing.def.weaponTags != null && thing.def.weaponTags.Count > 0)
+            if(thing.def.weaponTags != null && thing.def.weaponTags.Count > 0 && thing.GetComp<CompDamageDef>().get_shieldDamage() != 0)
             {
                 Verse.Log.Warning(thing.def.defName + "Spawned in");
                 Verse.Log.Warning(thing.AllComps.Count.ToString() + "Comp Count");
+                Verse.Log.Warning(thing.GetComp<CompQuality>().Quality.ToString());
+                Verse.Log.Warning(thing.GetStatValue(StatDefOf.RangedWeapon_DamageMultiplier).ToString());
             }
+        }
+        private static void printBullet(Bullet bullet)
+        {
+            Verse.Log.Warning("||||");
+            Verse.Log.Warning(bullet.Launcher.def.defName);
+            Verse.Log.Warning(bullet.EquipmentDef.defName);
+            Verse.Log.Warning("||||");
         }
     }
 

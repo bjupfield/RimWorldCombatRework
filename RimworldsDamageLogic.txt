@@ -102,11 +102,14 @@ totalDamageDealt applies the damage trhoguh teh AddHediff func
 
 launch assigns the quality modifier, but doesnt translate it to damage?
 
-
+shield damage:
 okay so shield damage does reach the impact function
-okay I have found it, shieldbelt damage is applied in the function CompShield.PostPreApplyDamage(), great name
+okay I have found it, shieldbelt damage is applied in the function CompShield.PostPreApplyDamage(), great name || also it is in the preapplydamage func which is located in the takedamage func
 and outside of person shields that appears on the map, not the pawn are handled in checkIntercept
+also shieldbelts only care about ranged damage and explosive damage
 
+
+quality multiplier:
 Im pretty the weapondamagemultiplier is the quality
 
 okay the rangedweapondamagemultiplier stat is the quality, so what we need to do is some how make a thingcomp
@@ -121,7 +124,7 @@ maybe Makething
 
 
 
-
+Comp assignment:
 okay I found where comps are assigned, you can look in C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Data\Royalty\Defs\ThingDefs_Misc\Weapons\MeleeUltratech.xml
 to see that comps are assigned to thingdefs, which means that each weapon needs to be assigned this comp, but as shown in the file it can be done in the abstract
 
@@ -132,3 +135,44 @@ than we need to pass this to our compshield.postpreapplydamage and our applyarmo
 and thats all
 parent is part of thingcomp, and it is initialized befoore the initiialized function on thingcomp, so we can use that to identify what weapon
 we are in, and than we can attach our thingcomp to the correct weapon, wonderful
+
+
+
+
+Accessing Comp:
+1 takedamage 2apply 3 applytopawn 4 applydamagetopart 5 getpostarmordamage
+		                  4 applysmalldamagetopart 5 applydamagetopart 6 getpostarmordamge
+
+okay the problem is that takedamage does not give enough info, as it is on the target class not the bullet class, so you cannot access any info 
+for that class to access the comp, so if we want to access the class we need to change the takedamge function to take extra parameters,
+the problem is, takedamage is used over 50 times... though i dont think it ever use something like this or base, so we can just replace it
+
+different damageDefstype:
+there are three damage types
+blunt
+sharp
+heat
+it is handled in getpostarmordamage, where it pulls out the damage def, then in the applyarmor call calls apparel.getstatvalue(damagedef.armorcategory.armorratingstat)
+so that the armor only applys the specific armor type it thed damage uses, so fire damage uses fire and 
+
+okay the the functions that use takedamage that we probably want to adjust are (we probably want to go through these to see if rimworld handles 
+armor and shield in any of these, it doesnt seem to handle shield in fire damage but maybe it applies armor to fire or something):
+
+bullet.impact
+startrandomfireanddoflamedamage - takedamage - damageworker_flame.apply - base.apply if base.apply returns without an instant permantent injury and damage is not deflected attach fire
+tornado.dodamage - pawn downed = damage * .2 - takedamage - damageworker_addinjury - same stuff
+fir.dofiredamage - takedamage - damageworker_flame.apply - base.apply if base.apply returns without an instant permantent injury and damage is not deflected attach fire
+applymeleedamagetotarget - for all damages in cut - takedamage - damageworker_blunt or cut or scratch or stab or bite.apply
+applyspecialeffectstopart - inside every isngle damageworker, seems to be just an addon
+checkapplyspreaddamage - part of addinjuryworker
+explosiondamagething - just uses take_damage - so shielddamage doesnt apply here - armorcategorysharp... hmmm
+
+okay i think I can just check the damagedef.damage type in takedamage, the one I overide things with to check if it is a bullet type
+and than either do the custom apply if it is bullet but the base apply if it not
+apply this new take damage to the tornado, explosion, melee, and bullet.impact
+for the fire damage just change the applyarmor to check for fire and do different damage logic for that
+
+okay, oh the misery, fucking ludeon gotta be my enemy, the plan is that we go back to the original just manager class bullshit,
+and on bullet impact and apply armor and postpreapplydamage we just call the managerclass search function for the sets of damage to get our
+shield damage and armor damage. Why, because bullet doesnt take the weapon thing, but only the launcher (pawn who shot it) thing... so we cant actually get our comps from it... so its pointless this whole comp thing we set up
+anyways we will do it in a boring and inefficient way because of this, because yes I do not want to change the bullet class, or the projectile class, because its simply not worth it...
