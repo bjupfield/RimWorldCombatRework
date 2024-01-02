@@ -19,15 +19,16 @@ namespace CombatRework
         {
             Harmony harmony = new Harmony("rimworld.mod.Pelican.CombatRework");
             Harmony.DEBUG = true;
-            DamageDefAdjustManager.onLoad();
             Verse.Log.Warning("HEY");
             Verse.Log.Warning("HEY2: " + nameof(ArmorUtility.GetPostArmorDamage));
             harmony.PatchAll();
+            DamageDefAdjustManager.onLoad();
         }
     }
 }
 [HarmonyPatch(typeof(DamageWorker_AddInjury))]
 [HarmonyPatch("ApplyDamageToPart")]
+[HarmonyPatch()]
 public static class DamageWroker_AddInjury__ApplyDamage_Patch
 {
     [HarmonyTranspiler]
@@ -49,12 +50,27 @@ public static class DamageWroker_AddInjury__ApplyDamage_Patch
         //dinfo.Weapon.defname
         myInstructs.Add(new CodeInstruction(OpCodes.Ldarga_S, 1));
         myInstructs.Add(CodeInstruction.Call(typeof(DamageInfo), "get_Weapon"));
+        myInstructs.Add(new CodeInstruction(OpCodes.Brfalse));
+        int jf1 = myInstructs.Count - 1;
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldarga_S, 1));
+        myInstructs.Add(CodeInstruction.Call(typeof(DamageInfo), "get_Weapon"));
         myInstructs.Add(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ThingDef), "defName")));
         
         //call DamagDefAdjustManager.GetPostArmorDamage(dinfo.weapon.defname)
         myInstructs.Add(CodeInstruction.Call(typeof(DamageDefAdjustManager), "GetPostArmorDamage"));
+        myInstructs.Add(new CodeInstruction(OpCodes.Br));
+        int jf2 = myInstructs.Count - 1;
 
-        lineList.RemoveAt(replacePoint);
+        Label jt1Label = il.DefineLabel();
+        lineList[replacePoint].labels.Add(jt1Label);
+
+        Label jt2Label = il.DefineLabel();
+        lineList[replacePoint + 1].labels.Add(jt2Label);
+
+        myInstructs[jf1].operand = jt1Label;
+        myInstructs[jf2].operand = jt2Label;
+
+
         lineList.InsertRange(replacePoint, myInstructs);
 
         return lineList;
@@ -62,7 +78,7 @@ public static class DamageWroker_AddInjury__ApplyDamage_Patch
 }
 [HarmonyPatch(typeof(RimWorld.CompProjectileInterceptor))]
 [HarmonyPatch("CheckIntercept")]
-public static class SheildIntercept_Patch
+public static class SheildIntercept_Patch//this is the non-shieldpack shields
 {
     [HarmonyTranspiler]
     static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
@@ -94,7 +110,7 @@ public static class SheildIntercept_Patch
     }
 }
 
-[HarmonyPatch(typeof(RimWorld.CompShield))]
+[HarmonyPatch(typeof(RimWorld.CompShield))]//this is shieldpack shields
 [HarmonyPatch("PostPreApplyDamage")]
 public static class CompShield_PostPreApplyDamage_Patch
 {
@@ -108,15 +124,73 @@ public static class CompShield_PostPreApplyDamage_Patch
 
 
         //damaginfo.weapon.defname
-        myInstructs.Add(new CodeInstruction(OpCodes.Ldarga_S, 1));
-        myInstructs.Add(CodeInstruction.Call(typeof(DamageInfo), "get_Weapon"));
-        myInstructs.Add(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ThingDef), "defName")));
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldarga_S, 1));
+        //myInstructs.Add(CodeInstruction.Call(typeof(DamageInfo), "get_Weapon"));
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ThingDef), "defName")));
         //DamageDefAdjustManager.pulldamagedef(damageinfo.weapon)
-        myInstructs.Add(CodeInstruction.Call(typeof(DamageDefAdjustManager), "partTwo"));
+        //myInstructs.Add(CodeInstruction.Call(typeof(DamageDefAdjustManager), "partTwo"));
         //pop
         //myInstructs.Add(new CodeInstruction(OpCodes.Pop, null));
 
         lineList.InsertRange(0, myInstructs);
+
+        return lineList;
+    }
+}
+[HarmonyPatch(typeof(Verse.ProjectileProperties), "GetDamageAmount",new Type[]{typeof(float), typeof(StringBuilder)})]
+public static class ProjectileProperties_GetDamageAmount_Patch
+{
+    [HarmonyTranspiler]
+    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> lines, ILGenerator il)
+    {
+
+        List<CodeInstruction> lineList = new List<CodeInstruction>(lines);
+
+        List<CodeInstruction> myInstructs = new List<CodeInstruction>();
+
+        //if(explanation != null)
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldarg, 2));
+        myInstructs.Add(new CodeInstruction(OpCodes.Brfalse_S));
+        int jf1 = myInstructs.Count - 1;
+
+        //if(explanation.ToString == "yes)
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldarg_2));
+        myInstructs.Add(CodeInstruction.Call(typeof(StringBuilder), "ToString"));
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldstr, "yes"));
+        myInstructs.Add(new CodeInstruction(OpCodes.Beq));
+        int jf2 = myInstructs.Count - 1;
+
+        //damageamountbase = weapondamagemultiplier
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldstr, "Returning Base"));
+        Type[] myParams = { typeof(string) };
+        myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
+
+        //if(damageamountbase == null)
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldarg, 0));
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(Verse.ProjectileProperties), "damageAmountBase")));
+        myInstructs.Add(new CodeInstruction(OpCodes.Brfalse_S));
+        int jf3 = myInstructs.Count - 1;
+
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldstr, "Before Damage Assignment"));
+        myInstructs.Add(CodeInstruction.Call(typeof(Verse.Log), "Warning", myParams));
+
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldarg, 1));
+        myInstructs.Add(new CodeInstruction(OpCodes.Ldarga, 0));
+        myInstructs.Add(new CodeInstruction(OpCodes.Stind_R4, AccessTools.Field(typeof(Verse.ProjectileProperties), "damageAmountBase")));
+
+        //return 0
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldc_I4_0));
+        myInstructs.Add(new CodeInstruction(OpCodes.Ret));
+
+        Label jt1Label = il.DefineLabel();
+        lineList[0].labels.Add(jt1Label);
+
+        myInstructs[jf1].operand = jt1Label;
+        myInstructs[jf2].operand = jt1Label;
+        myInstructs[jf3].operand = jt1Label;
+
+        lineList.InsertRange(0, myInstructs);
+
 
         return lineList;
     }
@@ -300,8 +374,8 @@ public static class Bullet_Impact_Patch
 
         List<CodeInstruction> myInstructs = new List<CodeInstruction>();
 
-        myInstructs.Add(new CodeInstruction(OpCodes.Ldarg_0, null));
-        myInstructs.Add(CodeInstruction.Call(typeof(CombatRework.DamageDefAdjustManager), "printBullet"));
+        //myInstructs.Add(new CodeInstruction(OpCodes.Ldarg_0, null));
+        //myInstructs.Add(CodeInstruction.Call(typeof(CombatRework.DamageDefAdjustManager), "printBullet"));
 
         lineList.InsertRange(adjustPoint, myInstructs);
 

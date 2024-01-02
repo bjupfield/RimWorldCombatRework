@@ -11,5 +11,7 @@ namespace Verse
     {
         public int shieldDamage;
         public int armorDamage;
+        public int baseDamage = 0;
+        public float changeDamage;
     }
 }

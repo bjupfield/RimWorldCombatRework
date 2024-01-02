@@ -37,17 +37,6 @@ namespace CombatRework
                 if (myGun != null)
                 {
                     allDamages.Add(myGun.defName, damage);
-                    Verse.Log.Warning("Is it mE!?!?!?" + DefDatabase<ThingDef>.GetNamed(myGun.Verbs[0].defaultProjectile.defName).projectile.GetDamageAmount(1).ToString());
-                    //myGun.Verbs.Find(x => { return typeof(x) == typeof(ThingDef)});
-                    Verse.Log.Warning("The Damage is currently: " + DefDatabase<ThingDef>.GetNamed(myGun.Verbs[0].defaultProjectile.defName).projectile.GetDamageAmount(1).ToString());
-                    StringBuilder mine = new StringBuilder("yes");
-                    ThingDef b = DefDatabase<ThingDef>.GetNamed(myGun.Verbs[0].defaultProjectile.defName);
-                    //DefDatabase<ThingDef>.GetNamed(myGun.Verbs[0].defaultProjectile.defName).projectile.GetDamageAmount(5f, mine);
-                    b.projectile.GetDamageAmount(5f, mine);
-                    Verse.Log.Warning("The Damage is currently: " + b.projectile.GetDamageAmount(1).ToString());
-                    //Verse.Log.Warning("The Damage is currently: " + DefDatabase<ThingDef>.GetNamed(myGun.Verbs[0].defaultProjectile.defName).projectile.GetDamageAmount(1).ToString());
-                    allDamages[myGun.defName].baseDamage  = DefDatabase<ThingDef>.GetNamed(myGun.Verbs[0].defaultProjectile.defName).projectile.GetDamageAmount(1);
-                    Verse.Log.Warning("Yes!?!?!?");
                 }
             }
 
@@ -55,12 +44,32 @@ namespace CombatRework
 
             return 0;
         }
+        public static Shield_Armor_Damage pullDamageDef(string DefName)
+        {
+            Verse.Log.Warning("Weapon Name: " + DefName);
+            
+            if (allDamages.ContainsKey(DefName))
+            {
+                Shield_Armor_Damage damage = allDamages[DefName];
+                Verse.Log.Warning("THIS IS THIS WEAPONS SHIELD DAMAGE: " + damage.shieldDamage.ToString());
+                Verse.Log.Warning("THIS IS THIS WEAPONS ARMOR DAMAGE: " + damage.armorDamage.ToString());
+                return damage;
+            }
+            return null;
+        }
+
+        public static void partTwo(string DefName)
+        {
+            Verse.Log.Warning("Weapon Name: " + DefName);
+            Verse.Log.Warning("Weapons Loaded: " + allDamages.Count);
+            Verse.Log.Warning("Shield Damage: " + allDamages[DefName].shieldDamage.ToString());
+            Verse.Log.Warning("Armor Damage: " + allDamages[DefName].armorDamage.ToString());
+        }
         public static float pullArmorDamage(string DefName, float damage)
         {
             if(allDamages.ContainsKey(DefName))
             {
                 Shield_Armor_Damage b = allDamages[DefName];
-                Verse.Log.Warning("THIS WEPAONS DAMAGE IS: " + b.armorDamage + " || BaseDamage: " + b.baseDamage + " || damage: " + damage);
                 return b.armorDamage * (damage / b.baseDamage);
             }
             return 0;
@@ -122,7 +131,7 @@ namespace CombatRework
         }
         private static void ApplyArmor(ref float damAmount, float armorPenetration, float armorRating, Thing armorThing, ref DamageDef damageDef, Pawn pawn, out bool metalArmor, float armorDamage)
         {
-            float b = 1f;
+            Verse.Log.Warning("This Weapon is Doing: " + armorDamage + " Armor Damage");
             if (armorThing != null)
             {
                 metalArmor = armorThing.def.apparel.useDeflectMetalEffect || (armorThing.Stuff != null && armorThing.Stuff.IsMetal);
@@ -133,11 +142,8 @@ namespace CombatRework
             }
             if (armorThing != null)
             {
-                b = Mathf.Max((float)armorThing.HitPoints / (float)armorThing.MaxHitPoints, .1f);
-                float myArmorDamage = b * Mathf.Min(armorRating, .9f) * armorDamage;
-                Verse.Log.Warning("This is the B Value: " + b + " || This is the ArmorRating Value: " + armorRating + " || This is the ArmorthingHitpoints: " + armorThing.HitPoints + " || This is the ArmorThingMax: " + armorThing.MaxHitPoints);
-                Verse.Log.Warning("Calculated Armor Damage: " + myArmorDamage);
-                armorThing.TakeDamage(new DamageInfo(damageDef, GenMath.RoundRandom(myArmorDamage)));
+                float f = damAmount * 0.25f;
+                armorThing.TakeDamage(new DamageInfo(damageDef, GenMath.RoundRandom(f)));
             }
             float num = Mathf.Max(armorRating - armorPenetration, 0f);
             float value = Rand.Value;

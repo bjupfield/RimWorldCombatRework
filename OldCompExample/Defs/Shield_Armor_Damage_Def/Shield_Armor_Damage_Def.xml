@@ -2,8 +2,7 @@
 <Defs>
 	<Shield_Armor_Damage>
 		<defName>Gun_Revolver</defName>
-		<shieldDamage>20</shieldDamage>
-		<armorDamage>15</armorDamage>
-		<baseDamage>0</baseDamage>
+		<shieldDamage>200</shieldDamage>
+		<armorDamage>300</armorDamage>
 	</Shield_Armor_Damage>
 </Defs>

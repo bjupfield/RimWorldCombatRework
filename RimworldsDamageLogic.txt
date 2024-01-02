@@ -176,3 +176,5 @@ okay, oh the misery, fucking ludeon gotta be my enemy, the plan is that we go ba
 and on bullet impact and apply armor and postpreapplydamage we just call the managerclass search function for the sets of damage to get our
 shield damage and armor damage. Why, because bullet doesnt take the weapon thing, but only the launcher (pawn who shot it) thing... so we cant actually get our comps from it... so its pointless this whole comp thing we set up
 anyways we will do it in a boring and inefficient way because of this, because yes I do not want to change the bullet class, or the projectile class, because its simply not worth it...
+
+okay for changing penetration we will simply include it in our new damage def, and change it in the onload function
